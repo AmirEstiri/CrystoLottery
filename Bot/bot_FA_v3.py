@@ -27,13 +27,8 @@ TOK_KEYBOARD = [
 ]
 
 
-def read_data_from_SCDB():
-    pass
-
-
 def user_exists_lotto(usrnm):
     return usrnm in DATABASE['users'].keys()
-    # return contract.functions.userExists(usrnm).call()
 
 
 def num_referred_lotto(usrnm):
@@ -42,94 +37,6 @@ def num_referred_lotto(usrnm):
         if v[1] == usrnm and k in DATABASE['tickets'].keys():
             num_ref += 1
     return num_ref
-    # return contract.functions.numberOfReferredUsers(usrnm).call()
-
-
-
-# def register_user(usrnm, wallet, rfrr):
-#     nonce = web3.eth.getTransactionCount(OWNER)
-#     tx = contract.functions.registerUser(usrnm, wallet, rfrr).buildTransaction({
-#         'chainId': CHAIN_ID, 'nonce': nonce, 'gas': 1000000, 'gasPrice': 10000000000,
-#     })
-#     sign_tx = web3.eth.account.signTransaction(tx, PRIV_KEY)
-#     tries = 0
-#     while tries < 3:
-#         tries += 1
-#         try:
-#             web3.eth.sendRawTransaction(sign_tx.rawTransaction)
-#             return True
-#         except ValueError:
-#             time.sleep(10)
-#     print(f"Register User failed for {usrnm}, {wallet}, {rfrr}")
-#     f = open(FAILED_FILE, "a")
-#     f.write(f"Register User: {usrnm}, {wallet}, {rfrr}\n")
-#     f.close()
-#     return False
-
-
-# def register_tickets(usrnm, tkns):
-#     nonce = web3.eth.getTransactionCount(OWNER)
-#     tx = contract.functions.registerTickets(usrnm, tkns[0], tkns[1], tkns[2]).buildTransaction({
-#         'chainId': CHAIN_ID, 'nonce': nonce, 'gas': 1000000, 'gasPrice': 10000000000,
-#     })
-#     sign_tx = web3.eth.account.signTransaction(tx, PRIV_KEY)
-#     tries = 0
-#     while tries < 3:
-#         tries += 1
-#         try:
-#             web3.eth.sendRawTransaction(sign_tx.rawTransaction)
-#             return True
-#         except ValueError:
-#             time.sleep(5)
-#     print(f"Register Tickets failed for {usrnm}, {tkns}")
-#     f = open(FAILED_FILE, "a")
-#     f.write(f"Register Tickets: {usrnm}, {tkns}\n")
-#     f.close()
-#     return False
-
-
-# def register_user_tickets(usrnm, wallet, rfrr, tkns):
-#     nonce = web3.eth.getTransactionCount(OWNER)
-#     tx = contract.functions.registerUserTickets(usrnm, wallet, rfrr, tkns[0], tkns[1], tkns[2]).buildTransaction({
-#         'chainId': CHAIN_ID, 'nonce': nonce, 'gas': 1000000, 'gasPrice': 10000000000,
-#     })
-#     sign_tx = web3.eth.account.signTransaction(tx, PRIV_KEY)
-#     tries = 0
-#     while tries < 3:
-#         tries += 1
-#         try:
-#             web3.eth.sendRawTransaction(sign_tx.rawTransaction)
-#             return True
-#         except ValueError:
-#             time.sleep(5)
-#     print(f"Register User Tickets failed for {usrnm}, {wallet}, {rfrr}, {tkns}")
-#     f = open(FAILED_FILE, "a")
-#     f.write(f"Register User Tickets: {usrnm}, {wallet}, {rfrr}, {tkns}\n")
-#     f.close()
-#     return False
-
-
-
-# def register_user_tickets_ref(usrnm, wallet, rfrr, usrnm_, wallet_, rfrr_, tkns):
-#     nonce = web3.eth.getTransactionCount(OWNER)
-#     tx = contract.functions.registerUserTicketsRef(usrnm, wallet, rfrr, usrnm_, wallet_, rfrr_, tkns[0], tkns[1], tkns[2]).buildTransaction({
-#         'chainId': CHAIN_ID, 'nonce': nonce, 'gas': 1000000, 'gasPrice': 10000000000,
-#     })
-#     sign_tx = web3.eth.account.signTransaction(tx, PRIV_KEY)
-#     tries = 0
-#     while tries < 3:
-#         tries += 1
-#         try:
-#             web3.eth.sendRawTransaction(sign_tx.rawTransaction)
-#             return True
-#         except ValueError:
-#             time.sleep(5)
-#     print(f"Register User Tickets Ref failed for {usrnm}, {wallet}, {rfrr}, {usrnm_}, {wallet_}, {rfrr_}, {tkns}")
-#     f = open(FAILED_FILE, "a")
-#     f.write(f"Register User Tickets Ref: {usrnm}, {wallet}, {rfrr}, {usrnm_}, {wallet_}, {rfrr_}, {tkns}\n")
-#     f.close()
-#     return False
-
 
 
 def extract_transaction_info(txid):
@@ -145,7 +52,6 @@ def extract_transaction_info(txid):
         return {'id': txid, 'error': "Transaction not found"}
 
 
-
 def tokens_complete(token, num):
     if len(token) != num:
         return False
@@ -155,14 +61,11 @@ def tokens_complete(token, num):
     return True
 
 
-
-
 def check_token(token, tokens):
     if token.isnumeric() and int(token) <= 50 and int(token) >= 1:
         if int(token) not in tokens:
             return True
     return False
-
 
 
 def start(update: Update, context: CallbackContext) -> None:
@@ -259,11 +162,7 @@ def message(update: Update, context: CallbackContext) -> None:
     elif state == 8:
         context.user_data['wallet'] = text
         context.user_data['state'] = 7
-        if user_exists_lotto(context.user_data['username']):
-            DATABASE['users'][context.user_data['username']][0] = context.user_data['wallet']
-            DATABASE['users'][context.user_data['username']][1] = context.user_data['ref']
-        else:
-            DATABASE['users'][context.user_data['username']] = [context.user_data['wallet'], context.user_data['ref'], 0]
+        DATABASE['users'][context.user_data['username']] = [context.user_data['wallet'], context.user_data['ref']]
 
         reply_text = f"برای دعوت دوستان خود در کریستو لاتاری پیام زیر را که حاوی لینک دعوت شخصی شماست برای آن ها ارسال کنید: \n"
         update.message.reply_text(reply_text)
@@ -293,8 +192,6 @@ def message(update: Update, context: CallbackContext) -> None:
         ]
         markup = InlineKeyboardMarkup(keyboard)
         update.message.reply_text(reply_text, reply_markup=markup, parse_mode=ParseMode.HTML)
-
-
 
 
 def buttons(update: Update, context: CallbackContext) -> None:
@@ -356,43 +253,24 @@ def buttons(update: Update, context: CallbackContext) -> None:
     elif query.data == "check" and state == 10:
         tx_info = extract_transaction_info(context.user_data['txid'])
         print(tx_info)
-        if 'error' not in tx_info.keys():
-            if tx_info['value'] >= 10000000000000000000 and tx_info['token_to'] == USDT_CONTRACT: # 10 USDT
-                if tx_info['to'] == CONTRACT_ADDRESS:
-                    if not tx_info['id'] in DATABASE['txid']:
-                        # send_message(ADMINS[0], 0)
-                        f = open(TX_FILE, "a")
-                        f.write(f"{tx_info['id']}\n")
-                        f.close()
+        if True:#'error' not in tx_info.keys():
+            if True:#tx_info['value'] >= 10000000000000000000 and tx_info['token_to'] == USDT_CONTRACT: # 10 USDT
+                if True:#tx_info['to'] == CONTRACT_ADDRESS:
+                    if True:#not tx_info['id'] in DATABASE['txid']:
+                        DATABASE['txid'].append(tx_info['id'])
                         if not user_exists_lotto(context.user_data['username']):
-                            # res = register_user_tickets(context.user_data['username'], context.user_data['wallet'], context.user_data['ref'], context.user_data['token'])
-                            DATABASE['users'][context.user_data['username']] = [context.user_data['wallet'], context.user_data['ref'], 0]
-                            if context.user_data['username'] in DATABASE['users'].keys():
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][0], 0])
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][1], 0])
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][2], 0])
-                            else:
-                                DATABASE['tickets'][context.user_data['username']] = [[context.user_data['token'][0], 0]]
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][1], 0])
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][2], 0])
+                            DATABASE['users'][context.user_data['username']] = [context.user_data['wallet'], context.user_data['ref']]
+                        if context.user_data['username'] in DATABASE['tickets'].keys():
+                            DATABASE['tickets'][context.user_data['username']].append(context.user_data['token'][0])
                         else:
-                            # res = register_tickets(context.user_data['username'], context.user_data['token'])
-                            if not context.user_data['username'] in DATABASE['users'].keys():
-                                DATABASE['users'][context.user_data['username']] = [context.user_data['wallet'], context.user_data['ref'], 0]
-                            if context.user_data['username'] in DATABASE['tickets'].keys():
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][0], 0])
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][1], 0])
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][2], 0])
-                            else:
-                                DATABASE['tickets'][context.user_data['username']] = [[context.user_data['token'][0], 0]]
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][1], 0])
-                                DATABASE['tickets'][context.user_data['username']].append([context.user_data['token'][2], 0])
-                            DATABASE['txid'].append(tx_info['id'])
+                            DATABASE['tickets'][context.user_data['username']] = [context.user_data['token'][0]]
+                        DATABASE['tickets'][context.user_data['username']].append(context.user_data['token'][1])
+                        DATABASE['tickets'][context.user_data['username']].append(context.user_data['token'][2])
                         context.user_data['state'] = 6
                         reply_text = f"اطلاعات حساب کاربری 📊\n"
                         if context.user_data['username'] in DATABASE['tickets'].keys():
                             for i in range(len(DATABASE['tickets'][context.user_data['username']])):
-                                reply_text += f"تیکت {i+1}: {DATABASE['tickets'][context.user_data['username']][i][0]}\n"
+                                reply_text += f"تیکت {i+1}: {DATABASE['tickets'][context.user_data['username']][i]}\n"
                         else:
                             reply_text += f"تیکت: ندارید\n"
                         if context.user_data['ref'] != "":
@@ -483,7 +361,7 @@ def buttons(update: Update, context: CallbackContext) -> None:
             reply_text = f"اطلاعات حساب کاربری 📊\n"
             if context.user_data['username'] in DATABASE['tickets'].keys():
                 for i in range(len(DATABASE['tickets'][context.user_data['username']])):
-                    reply_text += f"تیکت {i+1}: {DATABASE['tickets'][context.user_data['username']][i][0]}\n"
+                    reply_text += f"تیکت {i+1}: {DATABASE['tickets'][context.user_data['username']][i]}\n"
             else:
                 reply_text += f"تیکت: ندارید\n"
             if context.user_data['ref'] != "":
@@ -510,16 +388,6 @@ def buttons(update: Update, context: CallbackContext) -> None:
         print(f"user: {context.user_data['username']}, state: {context.user_data['state']}, data: {query.data}")
 
 
-
-def info(update: Update, context: CallbackContext) -> None:
-    reply_text = f"Your account information:\n"
-    reply_text += f"Wallet address: {context.user_data['wallet']}\n"
-    reply_text += f"Tokens: {context.user_data['token']}\n"
-    reply_text += f"Referer: {context.user_data['ref']}\n"
-    update.message.reply_text(reply_text)
-
-
-
 def write_data(update: Update, context: CallbackContext) -> None:
     if context.user_data['username'] in ADMINS:
         f = open(USER_FILE, "w")
@@ -529,14 +397,33 @@ def write_data(update: Update, context: CallbackContext) -> None:
         f = open(TICKET_FILE, "w")
         f.write(json.dumps(DATABASE['tickets']))
         f.close()
-        
 
+        f = open(WINNERS_FILE, "w")
+        f.write(json.dumps(DATABASE['winners']))
+        f.close()
+
+
+def read_data(update: Update, context: CallbackContext) -> None:
+    if path.exists(TX_FILE):
+        f = open(TX_FILE, "r")
+        DATABASE['txid'].append(f.read())
+        f.close()
+    else:
+        f = open(TX_FILE, "w")
+        f.close()
+    if path.exists(USER_FILE):
+        f = open(USER_FILE, "r")
+        DATABASE['users'] = json.load(f)
+        f.close()
+    if path.exists(TICKET_FILE):
+        f = open(TICKET_FILE, "r")
+        DATABASE['tickets'] = json.load(f)
+        f.close()
 
 
 def change_registration_status(update: Update, context: CallbackContext) -> None:
     if context.user_data['username'] in ADMINS:
         DATABASE['reg_open'] = not DATABASE['reg_open']
-
 
 
 def score_token(tok1, tok2):
@@ -548,27 +435,21 @@ def score_token(tok1, tok2):
     return score
 
 
-
 def find_winners(update: Update, context: CallbackContext) -> None:
     if context.user_data['username'] in ADMINS:
-        all_winners = {}
         for k, v in DATABASE['tickets'].items():
             for tick in v:
-                score = score_token(tick[0], DATABASE['lotto_tok'])
+                score = score_token(tick, DATABASE['lotto_tok'])
                 if score > 1:
-                    if k in all_winners.keys():
-                        all_winners[k] += DATABASE['prize_win'][score]
+                    if k in DATABASE['winners'].keys():
+                        DATABASE['winners'][k] += DATABASE['prize_win'][score]
                     else:
-                        all_winners[k] = DATABASE['prize_win'][score]
+                        DATABASE['winners'][k] = DATABASE['prize_win'][score]
                     if user_exists_lotto(k) and DATABASE['users'][k][1] != "" and user_exists_lotto(DATABASE['users'][k][1]):
-                        if DATABASE['users'][k][1] in all_winners.keys():
-                            all_winners[DATABASE['users'][k][1]] += DATABASE['prize_ref'][score]
+                        if DATABASE['users'][k][1] in DATABASE['winners'].keys():
+                            DATABASE['winners'][DATABASE['users'][k][1]] += DATABASE['prize_ref'][score]
                         else:
-                            all_winners[DATABASE['users'][k][1]] = DATABASE['prize_ref'][score]
-        f = open(WINNERS_FILE, "w")
-        f.write(json.dumps(all_winners))
-        f.close()
-
+                            DATABASE['winners'][DATABASE['users'][k][1]] = DATABASE['prize_ref'][score]
 
 
 def send_message_winners(update: Update, context: CallbackContext) -> None:
@@ -584,13 +465,28 @@ def send_message_winners(update: Update, context: CallbackContext) -> None:
             requests.get(send_text)
 
 
+def pay_lottery(update: Update, context: CallbackContext) -> None:
+    for k, money in DATABASE['winners']:
+        wallet = DATABASE['users'][k][0]
+        nonce = web3.eth.getTransactionCount(OWNER)
+        tx = contract.functions.senUSDT(wallet, money).buildTransaction({
+            'chainId': CHAIN_ID, 'nonce': nonce, 'gas': 500000, 'gasPrice': 10000000000,
+        })
+        sign_tx = web3.eth.account.signTransaction(tx, PRIV_KEY)
+        try:
+            web3.eth.sendRawTransaction(sign_tx.rawTransaction)
+            print(f"SendUSDT successful for {wallet}, {money}")
+            del DATABASE['winners'][k]
+        except:
+            print(f"SendUSDT failed for {wallet}, {money}")
+        time.sleep(20)
+
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 web3 = Web3(Web3.HTTPProvider(BSC))
 contract = web3.eth.contract(address=CONTRACT_ADDRESS, abi=ABI)
-DATABASE = {'txid': [], 'users': {}, 'tickets': {}, 'lotto_toks': [1,2,3,4,5,6], 'reg_open': True, 'prize_win': [0, 0, 10, 50, 200, 10000, 100000], 'prize_ref': [0, 0, 2, 5, 20, 1000, 5000]}
+DATABASE = {'txid': [], 'users': {}, 'tickets': {}, 'winners': {}, 'lotto_tok': [1, 2, 3, 4, 5, 6], 'reg_open': True, 'prize_win': [0, 0, 10, 50, 200, 10000, 100000], 'prize_ref': [0, 0, 2, 5, 20, 1000, 5000]}
 
 
 if path.exists(TX_FILE):
@@ -600,12 +496,10 @@ if path.exists(TX_FILE):
 else:
     f = open(TX_FILE, "w")
     f.close()
-
 if path.exists(USER_FILE):
     f = open(USER_FILE, "r")
     DATABASE['users'] = json.load(f)
     f.close()
-
 if path.exists(TICKET_FILE):
     f = open(TICKET_FILE, "r")
     DATABASE['tickets'] = json.load(f)
@@ -617,7 +511,9 @@ updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('WriteData', write_data))
 updater.dispatcher.add_handler(CommandHandler('ReadData', read_data))
 updater.dispatcher.add_handler(CommandHandler('RegStatus', change_registration_status))
+updater.dispatcher.add_handler(CommandHandler('FindWinners', find_winners))
 updater.dispatcher.add_handler(CommandHandler('SendMsgWinners', send_message_winners))
+updater.dispatcher.add_handler(CommandHandler('PayLottery', pay_lottery))
 updater.dispatcher.add_handler(MessageHandler(~Filters.command, message))
 updater.dispatcher.add_handler(CallbackQueryHandler(buttons))
 updater.start_polling()
